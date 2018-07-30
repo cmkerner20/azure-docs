@@ -132,6 +132,24 @@ public static Task Run(
 > [!NOTE]
 > Instance termination does not currently propagate. Activity functions and sub-orchestrations will run to completion regardless of whether the orchestration instance that called them has been terminated.
 
+## Rewinding Instances
+
+Calling the RewindAsync method on the [DurableOrchestrationClient](https://azure.github.io/azure-functions-durable-extension/api/Microsoft.Azure.WebJobs.DurableOrchestrationClient.html) class restarts a failed orchestration. It wil resume the orchestration's execution from the most recent non-failed state. RewindAsync takes as parameters the `instanceId` of the failed orchestration and a `reason` string. You can use rewind to recover from a failure in an orchestrator, activity function, or sub-orchestration called by the specified orchestration instance.
+
+```csharp
+[FunctionName("RewindInstance")]
+public static Task Run(
+    [OrchestrationClient] DurableOrchestrationClient client,
+    [ManualTrigger] string instanceId)
+{
+    string reason = "Orchestrator failed and needs to be rewound.";
+    return client.RewindAsync(instanceId, reason);
+}
+```
+
+> [!NOTE]
+> There is currently no support on RewindAsync for rewinding orchestrations using Durable timers.
+
 ## Sending events to instances
 
 Event notifications can be sent to running instances using the [RaiseEventAsync](https://azure.github.io/azure-functions-durable-extension/api/Microsoft.Azure.WebJobs.DurableOrchestrationClient.html#Microsoft_Azure_WebJobs_DurableOrchestrationClient_RaiseEventAsync_) method of the [DurableOrchestrationClient](https://azure.github.io/azure-functions-durable-extension/api/Microsoft.Azure.WebJobs.DurableOrchestrationClient.html) class. Instances that can handle these events are those that are awaiting a call to [WaitForExternalEvent](https://azure.github.io/azure-functions-durable-extension/api/Microsoft.Azure.WebJobs.DurableOrchestrationContext.html#Microsoft_Azure_WebJobs_DurableOrchestrationContext_WaitForExternalEvent_). 

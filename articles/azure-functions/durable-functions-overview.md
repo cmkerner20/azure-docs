@@ -75,6 +75,8 @@ The values "F1", "F2", "F3", and "F4" are the names of other functions in the fu
 
 The `ctx` parameter ([DurableOrchestrationContext](https://azure.github.io/azure-functions-durable-extension/api/Microsoft.Azure.WebJobs.DurableOrchestrationContext.html)) provides methods for invoking other functions by name, passing parameters, and returning function output. Each time the code calls `await`, the Durable Functions framework *checkpoints* the progress of the current function instance. If the process or VM recycles midway through the execution, the function instance resumes from the previous `await` call. More on this restart behavior later.
 
+A sample walkthrough of a function chaining example can be found [here](https://docs.microsoft.com/en-us/azure/azure-functions/durable-functions-sequence).
+
 ## Pattern #2: Fan-out/fan-in
 
 *Fan-out/fan-in* refers to the pattern of executing multiple functions in parallel, and then waiting for all to finish.  Often some aggregation work is done on results returned from the functions.
@@ -131,6 +133,8 @@ module.exports = df(function*(ctx) {
 The fan-out work is distributed to multiple instances of function `F2`, and the work is tracked by using a dynamic list of tasks. The .NET `Task.WhenAll` API is called to wait for all of the called functions to finish. Then the `F2`function outputs are aggregated from the dynamic task list and passed on to the `F3` function.
 
 The automatic checkpointing that happens at the `await` call on `Task.WhenAll` ensures that any crash or reboot midway through does not require a restart of any already completed tasks.
+
+A sample walkthrough of a fan-out/fan-in example can be found [here](https://docs.microsoft.com/en-us/azure/azure-functions/durable-functions-cloud-backup).
 
 ## Pattern #3: Async HTTP APIs
 
@@ -256,6 +260,8 @@ module.exports = df(function*(ctx) {
 
 When a request is received, a new orchestration instance is created for that job ID. The instance polls a status until a condition is met and the loop is exited. A durable timer is used to control the polling interval. Further work can then be performed, or the orchestration can end. When the `ctx.CurrentUtcDateTime` exceeds the `expiryTime`, the monitor ends.
 
+A sample walkthrough of a monitoring example can be found [here](https://docs.microsoft.com/en-us/azure/azure-functions/durable-functions-monitor).
+
 ## Pattern #5: Human interaction
 
 Many processes involve some kind of human interaction. The tricky thing about involving humans in an automated process is that people are not always as highly available and responsive as cloud services. Automated processes must allow for this, and they often do so by using timeouts and compensation logic.
@@ -324,6 +330,8 @@ public static async Task Run(string instanceId, DurableOrchestrationClient clien
     await client.RaiseEventAsync(instanceId, "ApprovalEvent", isApproved);
 }
 ```
+
+A sample walkthrough of a human interaction example can be found [here](https://docs.microsoft.com/en-us/azure/azure-functions/durable-functions-phone-verification).
 
 ## The technology
 
